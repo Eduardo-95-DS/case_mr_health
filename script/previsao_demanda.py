@@ -51,6 +51,14 @@ def dia_da_semana(df, nome_coluna_data):
     
     return df
 
+def apply_rules(row):
+    dia_da_semana = row['dia_da_semana']
+    row['item_a'] = valores_item_a.get(dia_da_semana, 0)  
+    row['item_b'] = valores_item_b.get(dia_da_semana, 0)
+    row['item_c'] = valores_item_c.get(dia_da_semana, 0)
+    row['item_d'] = valores_item_d.get(dia_da_semana, 0)
+    return row
+
 # eda 
 def hipotese_1(df):
     # hipotese = Sexta vende-se 40% a mais em relação a segunda a quinta
@@ -439,31 +447,6 @@ X_train_ts=pd.concat([X_train_ts,X_val_ts])
 # machine learning============================================================
 df7=df6.copy()
 
-# modelo baseline 
-median_item_a = df7['item_a'].median()
-median_item_b = df7['item_b'].median()
-median_item_c = df7['item_c'].median()
-median_item_d = df7['item_d'].median()
-
-y_pred = pd.DataFrame({
-    'item_a': [median_item_a] * len(y_test),
-    'item_b': [median_item_b] * len(y_test),
-    'item_c': [median_item_c] * len(y_test),
-    'item_d': [median_item_d] * len(y_test)})
-
-mae_item_a = mean_absolute_error(y_test['item_a'], y_pred['item_a'])
-mae_item_b = mean_absolute_error(y_test['item_b'], y_pred['item_b'])
-mae_item_c = mean_absolute_error(y_test['item_c'], y_pred['item_c'])
-mae_item_d = mean_absolute_error(y_test['item_d'], y_pred['item_d'])
-
-mae_geral = (mae_item_a + mae_item_b + mae_item_c + mae_item_d) / 4
-
-# print("MAE geral:", mae_geral)
-# print("MAE Item a:", mae_item_a)
-# print("MAE Item b:", mae_item_b)
-# print("MAE Item c:", mae_item_c)
-# print("MAE Item d:", mae_item_d)
-
 # regressão linear 
 reg = MultiOutputRegressor(LinearRegression()).fit(X_train, y_train)
 
@@ -534,3 +517,31 @@ mae_geral = (mae_a + mae_b + mae_c + mae_d) / 4
 # print(f'Time series - MAE Item b: {mae_b}')
 # print(f'Time series - MAE Item c: {mae_c}')
 # print(f'Time series - MAE Item d: {mae_d}')
+
+
+# modelo baseline (MODELO ESCOLHIDO) (mediana dos itens de acordo com o dia da semana)
+median_by_day = pd.pivot_table(df7, values=['item_a', 'item_b', 'item_c', 'item_d'], index='dia_da_semana', aggfunc='median')
+median_by_day.reset_index(inplace=True)
+
+y_pred=y_test.copy()
+y_pred['dia_da_semana']=X_test_full['dia_da_semana']
+
+valores_item_a = median_by_day.set_index('dia_da_semana')['item_a'].to_dict()
+valores_item_b = median_by_day.set_index('dia_da_semana')['item_b'].to_dict()
+valores_item_c = median_by_day.set_index('dia_da_semana')['item_c'].to_dict()
+valores_item_d = median_by_day.set_index('dia_da_semana')['item_d'].to_dict()
+
+y_pred = y_pred.apply(apply_rules, axis=1)
+
+mae_item_a = mean_absolute_error(y_test['item_a'], y_pred['item_a'])
+mae_item_b = mean_absolute_error(y_test['item_b'], y_pred['item_b'])
+mae_item_c = mean_absolute_error(y_test['item_c'], y_pred['item_c'])
+mae_item_d = mean_absolute_error(y_test['item_d'], y_pred['item_d'])
+
+mae_geral = (mae_item_a + mae_item_b + mae_item_c + mae_item_d) / 4
+
+# print("MAE geral:", mae_geral)
+# print("MAE Item a:", mae_item_a)
+# print("MAE Item b:", mae_item_b)
+# print("MAE Item c:", mae_item_c)
+# print("MAE Item d:", mae_item_d)
