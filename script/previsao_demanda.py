@@ -372,19 +372,19 @@ df4=df2.copy()
 # (somente as hipóteses mais importantes do notebook)
 
 # Sexta vende-se 40% a mais em relação a segunda a quinta
-# fig1, resultado1 = hipotese_1(df4)
+fig1, resultado1 = hipotese_1(df4)
 
 # Entre sexta a domingo, vende-se em média 60% a mais
-# fig2, resultado2 = hipotese_2(df4)
+fig2, resultado2 = hipotese_2(df4)
 
 # Entre sábado a domingo, vende-se em média 100% a mais
-# fig3, resultado3 = hipotese_3(df4)
+fig3, resultado3 = hipotese_3(df4)
 
 # Às quintas, o item b vende 30% menos do que os outros itens
-# fig4, resultado4 = hipotese_4(df4)
+fig4, resultado4 = hipotese_4(df4)
 
 # Às sextas, os item a e c vendem 50% menos do que os itens b e d
-# fig5, resultado5 = hipotese_5(df4)
+fig5, resultado5 = hipotese_5(df4)
 
 # preparação dos dados========================================
 df5=df4.copy()
